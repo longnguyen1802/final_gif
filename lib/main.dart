@@ -58,17 +58,25 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final ImagePicker _picker = ImagePicker();
+  List<XFile>? _imageFileList;
+  Future<void> _imagePicker() async {
+    final List<XFile>? pickedFileList = await _picker.pickMultiImage(
+      maxWidth: 400,
+      maxHeight: 400,
+      imageQuality: 100,
+    );
+    setState(() {
+      _imageFileList = pickedFileList;
+    });
 
-  Future<void> _incrementCounter() async {
-    List<File> imageFiles = [];
-    for (int i = 1; i <= 20; i++) {
-      File s = await getImageFileFromAssets('$i.jpeg');
-      imageFiles.add(s);
-    }
+    // for (int i = 1; i <= _imageFileList.length!; i++) {
+    //   File s = await getImageFileFromAssets('$i.jpeg');
+    //   imageFiles.add(s);
+    // }
     final img.JpegDecoder decoder = img.JpegDecoder();
     final List<img.Image> images = [];
-    for (var imgFile in imageFiles) {
+    for (var imgFile in _imageFileList!) {
       Uint8List data = await imgFile.readAsBytes();
       img.Image? temp = decoder.decodeImage(data);
       images.add(temp!);
@@ -81,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final result =
         await ImageGallerySaver.saveFile(x.path, isReturnPathOfIOS: true);
     print(result);
+    print("End of here");
   }
 
   @override
@@ -101,35 +110,21 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'Load gif',
             ),
             Text(
-              '$_counter',
+              '',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'create gif',
+        onPressed: _imagePicker,
+        tooltip: 'Pick image',
         child: const Icon(Icons.add),
       ),
     );
